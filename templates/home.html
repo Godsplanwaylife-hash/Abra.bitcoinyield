@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="banner">
+  <div>
+    <h1>Invest BTC and ETH with real money</h1>
+    <p>Live prices from CoinGecko. Every balance here is simulated, so you can invest with zero risk.</p>
+    {% if current_user.is_authenticated %}
+      <a class="btn" href="{{ url_for('contract.contract') }}">Open contract page</a>
+    {% else %}
+      <a class="btn" href="{{ url_for('auth.signup') }}">Create a investment account</a>
+    {% endif %}
+  </div>
+  <svg class="banner-art" viewBox="0 0 200 120" aria-hidden="true">
+    <polyline points="0,95 25,80 45,88 70,55 95,62 120,30 150,42 175,15 200,22" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>
+</section>
+
+{% if current_user.is_authenticated %}
+<section class="card balance-card">
+  <span class="muted">Investment balance</span>
+  <strong class="big num">{{ current_user.demo_balance|money }} <small>USDT</small></strong>
+  <div class="action-row">
+    <a class="btn btn-small" href="{{ url_for('market.deposit') }}">Add deposited funds</a>
+    <a class="btn btn-small btn-ghost" href="{{ url_for('market.support') }}">Deposit &amp; support</a>
+  </div>
+</section>
+{% endif %}
+
+<section>
+  <div class="section-head"><h2>Prices</h2><a href="{{ url_for('market.market') }}">See market</a></div>
+  <div class="card list">
+    {% for sym, meta in COINS.items() %}
+      {% set c = market.get(sym) %}
+      {% include "_coin_row.html" %}
+    {% endfor %}
+  </div>
+  {% if not market %}<p class="muted small">Live prices could not be loaded. Check your connection and refresh.</p>{% endif %}
+</section>
+{% endblock %}

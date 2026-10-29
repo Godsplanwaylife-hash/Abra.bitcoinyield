@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Reset password · testingcoin{% endblock %}
+{% block content %}
+<section class="card auth">
+  <h1>Choose a new password</h1>
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {% for f in [form.password, form.confirm] %}
+      <label class="field-label" for="{{ f.id }}">{{ f.label.text }}</label>
+      {{ f(autocomplete="new-password") }}
+      {% for e in f.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+    {% endfor %}
+    <button class="btn btn-block" type="submit">Change password</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Forgot password · testingcoin{% endblock %}
+{% block content %}
+<section class="card auth">
+  <h1>Forgot your password?</h1>
+  <p class="muted small">Enter your email and we'll send you a link to choose a new one.</p>
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <label class="field-label" for="{{ form.email.id }}">Email</label>
+    {{ form.email(autocomplete="email") }}
+    {% for e in form.email.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+    <button class="btn btn-block" type="submit">Send reset link</button>
+  </form>
+  <p class="muted small center"><a href="{{ url_for('auth.login') }}">Back to log in</a></p>
+</section>
+{% endblock %}

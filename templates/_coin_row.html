@@ -1,0 +1,20 @@
+{# expects: sym, meta, c (market data for sym) #}
+<a class="coin-row" href="{{ url_for('contract.contract', symbol=sym) }}">
+  <div class="coin-id">
+    <span class="coin-badge coin-{{ sym|lower }}">{{ sym[0] }}</span>
+    <div>
+      <strong>{{ sym }}</strong><small class="muted">{{ meta.name }}</small>
+    </div>
+  </div>
+  {% if c %}
+  <svg class="spark {{ 'up' if c.change_24h >= 0 else 'down' }}" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+    <polyline points="{{ c.spark|spark_points }}" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+  </svg>
+  <div class="coin-price">
+    <strong class="num">${{ c.price|money }}</strong>
+    <span class="chg {{ 'up' if c.change_24h >= 0 else 'down' }}">{{ '%+.2f'|format(c.change_24h) }}%</span>
+  </div>
+  {% else %}
+  <span class="muted">Price unavailable</span>
+  {% endif %}
+</a>

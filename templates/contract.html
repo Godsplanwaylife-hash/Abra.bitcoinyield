@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{{ coin.pair }} · Contract{% endblock %}
+{% block head %}<script src="https://s3.tradingview.com/tv.js"></script>{% endblock %}
+{% block content %}
+{% set c = market.get(symbol) %}
+<div id="contract-root"
+     data-symbol="{{ symbol }}" data-tv="{{ coin.tv }}"
+     data-payout="{{ payout_rate }}" data-balance="{{ current_user.demo_balance }}"
+     data-min="{{ min_stake }}"></div>
+
+<div class="tabs">
+  {% for sym, meta in COINS.items() %}
+    <a class="tab {{ 'active' if sym == symbol }}" href="{{ url_for('contract.contract', symbol=sym) }}">{{ meta.pair }}</a>
+  {% endfor %}
+</div>
+
+<section class="price-head">
+  <strong class="big num" id="live-price">{% if c %}${{ c.price|money }}{% else %}—{% endif %}</strong>
+  {% if c %}<span class="chg {{ 'up' if c.change_24h >= 0 else 'down' }}">{{ '%+.2f'|format(c.change_24h) }}%</span>{% endif %}
+  <span class="muted small">24h high {{ '$' ~ ('{:,.2f}'.format(c.high_24h)) if c and c.high_24h else '—' }} · low {{ '$' ~ ('{:,.2f}'.format(c.low_24h)) if c and c.low_24h else '—' }}</span>
+</section>
+
+<div class="timeframes" role="group" aria-label="Chart timeframe">
+  {% for tf in ['1m','5m','15m','30m','1h','4h','1d'] %}
+    <button type="button" class="tf {{ 'active' if tf == '15m' }}" data-tf="{{ tf }}">{{ tf }}</button>
+  {% endfor %}
+</div>
+
+<div class="chart-wrap"><div id="tv_chart"></div></div>
+
+<section class="card order">
+  <div class="row-between">
+    <span class="muted">Available</span>
+    <strong class="num" id="balance">{{ current_user.demo_balance|money }} USDT</strong>
+  </div>
+
+  <label class="field-label" for="duration">Contract length</label>
+  <div class="seg" id="duration-seg">
+    {% for d in durations %}
+      <button type="button" class="seg-btn {{ 'active' if loop.first }}" data-duration="{{ d }}">{{ d // 60 }}m</button>
+    {% endfor %}
+  </div>
+
+  <label class="field-label" for="amount">Stake (USDT)</label>
+  <input id="amount" type="number" inputmode="decimal" min="{{ min_stake }}" step="1" value="100">
+  <div class="seg quick">
+    <button type="button" class="seg-btn" data-pct="0.25">25%</button>
+    <button type="button" class="seg-btn" data-pct="0.5">50%</button>
+    <button type="button" class="seg-btn" data-pct="1">Max</button>
+  </div>
+  <p class="muted small">Win: +{{ (payout_rate * 100)|int }}% of stake. Lose: stake is gone. Draw: stake returned. investment balance only.</p>
+  <p id="trade-msg" class="trade-msg" role="alert"></p>
+
+  <div class="buy-row">
+    <button type="button" class="btn-buy up" data-dir="up">Buy Up</button>
+    <button type="button" class="btn-buy down" data-dir="down">Buy Down</button>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>Open contracts</h2></div>
+  {% if open_trades %}
+  <div class="card list">
+    {% for t in open_trades %}
+    <div class="trade-row">
+      <div>
+        <strong>{{ t.symbol }}USDT</strong>
+        <span class="chg {{ 'up' if t.direction == 'up' else 'down' }}">{{ 'Up' if t.direction == 'up' else 'Down' }}</span>
+        <small class="muted num">Entry ${{ t.entry_price|money }}</small>
+      </div>
+      <div class="right">
+        <strong class="num">{{ t.amount|money }}</strong>
+        <small class="countdown muted" data-expires="{{ t.expires_at.isoformat() }}Z">…</small>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="muted">No open contracts. Pick a direction above to start one.</p>
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/contract.js') }}"></script>{% endblock %}

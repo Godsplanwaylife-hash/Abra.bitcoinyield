@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Verify email · testingcoin{% endblock %}
+{% block content %}
+<section class="card auth">
+  <h1>Check your email</h1>
+  <p class="muted">We sent a 6-digit code to <strong>{{ email }}</strong>. It expires in 10 minutes.</p>
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <label class="field-label" for="{{ form.code.id }}">{{ form.code.label.text }}</label>
+    {{ form.code(inputmode="numeric", maxlength="6", autocomplete="one-time-code", placeholder="123456") }}
+    {% for e in form.code.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+    <button class="btn btn-block" type="submit">Verify</button>
+  </form>
+  <form method="post" action="{{ url_for('auth.resend_code') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-ghost btn-block" type="submit">Send a new code</button>
+  </form>
+  <p class="muted small center">Can't find it? Check your spam folder.</p>
+</section>
+{% endblock %}

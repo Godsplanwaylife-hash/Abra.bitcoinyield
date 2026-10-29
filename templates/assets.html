@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Assets · testingcoin{% endblock %}
+{% block content %}
+<section class="card balance-card">
+  <span class="muted">Investment Balance</span>
+  <strong class="big num">{{ current_user.demo_balance|money }} <small>USDT</small></strong>
+  <span class="chg {{ 'up' if stats.net >= 0 else 'down' }}">Net P&amp;L {{ '%+.2f'|format(stats.net) }} USDT</span>
+  <div class="action-row"><a class="btn btn-small" href="{{ url_for('market.deposit') }}">Add deposited funds</a></div>
+</section>
+
+<section class="stat-grid">
+  <div class="card stat"><span class="muted">Open</span><strong class="num">{{ stats.open }}</strong></div>
+  <div class="card stat"><span class="muted">Won</span><strong class="num up">{{ stats.won }}</strong></div>
+  <div class="card stat"><span class="muted">Lost</span><strong class="num down">{{ stats.lost }}</strong></div>
+</section>
+
+<div class="section-head"><h2>Trade history</h2></div>
+{% if trades %}
+<div class="card list">
+  {% for t in trades %}
+  <div class="trade-row">
+    <div>
+      <strong>{{ t.symbol }}USDT</strong>
+      <span class="chg {{ 'up' if t.direction == 'up' else 'down' }}">{{ 'Up' if t.direction == 'up' else 'Down' }}</span>
+      <small class="muted num">{{ t.opened_at.strftime('%b %d, %H:%M') }} UTC · {{ t.duration // 60 }}m</small>
+    </div>
+    <div class="right">
+      <strong class="num">{{ t.amount|money }}</strong>
+      <small class="status status-{{ t.status }}">
+        {% if t.status == 'won' %}Won +{{ (t.payout - t.amount)|money }}
+        {% elif t.status == 'lost' %}Lost −{{ t.amount|money }}
+        {% elif t.status == 'draw' %}Draw
+        {% else %}Open{% endif %}
+      </small>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="muted">No trades yet. Open the <a href="{{ url_for('contract.contract') }}">Contract</a> page to place your first simulated trade.</p>
+{% endif %}
+{% endblock %}

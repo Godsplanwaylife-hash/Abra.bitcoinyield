@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Market · testingcoin{% endblock %}
+{% block content %}
+<div class="section-head"><h1>Market</h1><span class="muted small">7-day trend · USD</span></div>
+<div class="card list">
+  {% for sym, meta in COINS.items() %}
+    {% set c = market.get(sym) %}
+    {% include "_coin_row.html" %}
+  {% endfor %}
+</div>
+{% if not market %}<p class="muted small">Live prices could not be loaded. Refresh in a minute.</p>{% endif %}
+<p class="muted small">Prices refresh about once a minute. Select a coin to open its chart.</p>
+{% endblock %}

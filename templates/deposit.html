@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Add demo funds · testingcoin{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Add investment funds</h1>
+  <p class="muted">Type how much <strong></strong> USDT you want to add. This will be deducted from your investment deposite with oyr support.</p>
+  <p>Current investment balance: <strong class="num">{{ current_user.demo_balance|money }} USDT</strong></p>
+  <form method="post" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="field-label" for="amount">Amount (USDT)</label>
+    <input id="amount" name="amount" type="number" inputmode="decimal" required
+           min="{{ min_amount }}" max="{{ max_amount }}" step="0.01" placeholder="e.g. 500">
+    <div class="seg quick">
+      {% for amt in [100, 500, 1000, 5000] %}
+        <button type="button" class="seg-btn" onclick="document.getElementById('amount').value={{ amt }}">{{ '{:,}'.format(amt) }}</button>
+      {% endfor %}
+    </div>
+    <button class="btn btn-block" type="submit">Add to investment balance</button>
+  </form>
+  <p class="muted small">Per top-up: {{ '{:,}'.format(min_amount) }} to {{ '{:,}'.format(max_amount) }} USDT. Investment balance is capped at {{ '{:,}'.format(max_balance) }} USDT.</p>
+</section>
+<p class="muted small center">Questions? <a href="{{ url_for('market.support') }}">Contact support</a></p>
+{% endblock %}

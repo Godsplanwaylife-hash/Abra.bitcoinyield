@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Help &amp; support · testingcoin{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>How it works</h1>
+  <details class="faq" open>
+    <summary>What is Abra.bitoinyield?</summary>
+    <p>A investment dashboard for BTC and ETH. You invest USDT through our contact support, add the fund to your balance after deposited.</p>
+  </details>
+  <details class="faq">
+    <summary>How do Buy Up / Buy Down work?</summary>
+    <p>Open the Contract page, pick a coin, a contract length and a stake. Buy Up wins if the price is higher when the contract ends, Buy Down wins if it is lower. A win pays +80% of your stake, a loss forfeits it, and a tie returns it.</p>
+  </details>
+  <details class="faq">
+    <summary>How do I add my funds?</summary>
+    <p>Go to Assets and tap <a href="{{ url_for('market.deposit') }}">Add funds</a>, You can only add fund deposit with our support.</p>
+  </details>
+  <details class="faq">
+    <summary>Can I deposit or withdraw real money?</summary>
+    <p>Yes. You can deposit and withdraw by contacting our customer support and following the steps. Your funds will be sent to the wallet address saved on your profile.</p>
+  </details>
+</section>
+
+<section class="card">
+  <h2>Message support</h2>
+  <p class="muted small">We reply by email to {{ current_user.email }}.</p>
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <label class="field-label" for="{{ form.topic.id }}">Topic</label>
+    {{ form.topic() }}
+    <label class="field-label" for="{{ form.message.id }}">Your message</label>
+    {{ form.message(rows=5) }}
+    {% for e in form.message.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+    <button class="btn btn-block" type="submit">Send message</button>
+  </form>
+</section>
+{% endblock %}

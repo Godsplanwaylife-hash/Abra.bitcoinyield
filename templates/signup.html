@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Sign up · testingcoin{% endblock %}
+{% block content %}
+<section class="card auth">
+  <h1>Create a investment account</h1>
+  <p class="muted small">Invest real money and make it yield.</p>
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {% for f in [form.username, form.email, form.password, form.confirm] %}
+      <label class="field-label" for="{{ f.id }}">{{ f.label.text }}</label>
+      {{ f() }}
+      {% for e in f.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+    {% endfor %}
+    <button class="btn btn-block" type="submit">Create account</button>
+  </form>
+  <p class="muted small center">Already registered? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+</section>
+{% endblock %}
