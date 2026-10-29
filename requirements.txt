@@ -6,3 +6,5 @@ WTForms>=3.1
 email-validator>=2.1
 requests>=2.31
 Flask-Migrate>=4.0
+gunicorn>=22.0
+psycopg2-binary>=2.9
