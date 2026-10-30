@@ -9,10 +9,12 @@ import logging
 import os
 import smtplib
 import threading
+
+import requests
 from email.message import EmailMessage
 from html import escape
 
-APP_NAME = "Abra.bitcoinyield"
+APP_NAME = "testingcoin"
 
 
 def _deliver(msg, user, password):
@@ -41,7 +43,7 @@ def _deliver(msg, user, password):
           "antivirus/firewall HTTPS scanning.\n")
 
 
-def send_email(to, subject, body, reply_to=None, html=None):
+def _send_smtp(to, subject, body, reply_to=None, html=None):
     user = (os.environ.get("MAIL_USERNAME") or "").strip().strip('"')
     password = (os.environ.get("MAIL_APP_PASSWORD") or "").replace(" ", "").strip('"')
     if not user or not password:
@@ -58,6 +60,41 @@ def send_email(to, subject, body, reply_to=None, html=None):
         msg.add_alternative(html, subtype="html")
     # Send in the background so the page doesn't wait on Gmail.
     threading.Thread(target=_deliver, args=(msg, user, password), daemon=True).start()
+
+
+def _deliver_brevo(to, subject, body, reply_to, html, api_key, sender):
+    """Send over HTTPS (port 443) with Brevo's API. Works on hosts that block SMTP."""
+    payload = {
+        "sender": {"name": APP_NAME, "email": sender},
+        "to": [{"email": to}],
+        "subject": subject,
+        "textContent": body,
+    }
+    if html:
+        payload["htmlContent"] = html
+    if reply_to:
+        payload["replyTo"] = {"email": reply_to}
+    try:
+        resp = requests.post("https://api.brevo.com/v3/smtp/email", json=payload, timeout=15,
+                             headers={"api-key": api_key, "accept": "application/json"})
+        if resp.status_code >= 300:
+            print(f"\n[EMAIL ERROR] Brevo said {resp.status_code}: {resp.text}\n")
+    except requests.RequestException as exc:
+        print(f"\n[EMAIL ERROR] Could not reach Brevo: {exc}\n")
+
+
+def send_email(to, subject, body, reply_to=None, html=None):
+    """Use Brevo's API if BREVO_API_KEY is set, otherwise Gmail SMTP, otherwise print."""
+    api_key = (os.environ.get("BREVO_API_KEY") or "").strip()
+    if api_key:
+        sender = (os.environ.get("MAIL_FROM") or os.environ.get("MAIL_USERNAME") or "").strip()
+        if not sender:
+            print("\n[EMAIL ERROR] Set MAIL_FROM to your verified Brevo sender address.\n")
+            return
+        threading.Thread(target=_deliver_brevo, daemon=True,
+                         args=(to, subject, body, reply_to, html, api_key, sender)).start()
+        return
+    _send_smtp(to, subject, body, reply_to=reply_to, html=html)
 
 
 # ---------------------------------------------------------------------------
