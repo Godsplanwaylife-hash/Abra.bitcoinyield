@@ -14,7 +14,7 @@ import requests
 from email.message import EmailMessage
 from html import escape
 
-APP_NAME = "testingcoin"
+APP_NAME = "Abra.bitcoinyield"
 
 
 def _deliver(msg, user, password):
