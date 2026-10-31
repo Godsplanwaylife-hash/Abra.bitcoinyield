@@ -3,26 +3,40 @@
 {% block content %}
 <section class="card">
   <h1>How it works</h1>
+
+  <details class="faq">
+    <summary>How do I invest my funds?</summary>
+    <p>Navigate to the “Me” tab and copy either Bitcoin (BTC) or Ethereum (ERC-20) wallet address to deposit funds.</p>
+  </details>
+
   <details class="faq" open>
     <summary>What is Abra.bitcoinyield?</summary>
-    <p>A investment dashboard for BTC and ETH. You invest USDT through the abra.bitcoinyield wallets, add the funds to your balance after deposited verification.</p>
+    <p>An investment dashboard for BTC and ETH. You invest USDT through the abra.bitcoinyield wallets, add the funds to your balance after deposited verification.</p>
   </details>
+  
   <details class="faq">
     <summary>How do Buy Up / Buy Down work?</summary>
     <p>Open the Contract page, pick a coin, a contract length and a stake. Buy Up wins if the price is higher when the contract ends, Buy Down wins if it is lower. A win pays +80% of your stake, a loss forfeits it, and a tie returns it.</p>
   </details>
+
+
   <details class="faq">
     <summary>How do I add my funds?</summary>
     <p>Open the Me tab and tap <a href="{{ url_for('market.deposit') }}">Add investment funds</a>.After  the investment receipt is verified.</p>
   </details>
+
+
   <details class="faq">
     <summary>Why does my balance go up and down?</summary>
     <p>Funds you add as BTC or ETH are held as coins at the price when you added them. Their value follows the live market price, so it can rise or fall even if you don't trade. Cash (USDT) stays fixed and is what contracts use.</p>
   </details>
+
+
   <details class="faq">
     <summary>Can I deposit or withdraw real money?</summary>
     <p>Yes. you can deposit through the abra.bitcoinyield wallet_address in your profile and contact support to make a request for funds withdrawal.</p>
   </details>
+  
 </section>
 
 <section class="card">
