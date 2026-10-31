@@ -7,7 +7,7 @@
     {% if current_user.is_authenticated %}
       <a class="btn" href="{{ url_for('contract.contract') }}">Open contract page</a>
     {% else %}
-      <a class="btn" href="{{ url_for('auth.signup') }}">Create a investment account</a>
+      <a class="btn" href="{{ url_for('auth.signup') }}">Create an investment account</a>
     {% endif %}
   </div>
   <svg class="banner-art" viewBox="0 0 200 120" aria-hidden="true">
