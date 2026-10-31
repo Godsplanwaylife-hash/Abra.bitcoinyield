@@ -28,6 +28,8 @@ def create_app():
         "DATABASE_URL", "sqlite:///" + os.path.join(app.instance_path, "dashboard.db"))
     if db_url.startswith("postgres://"):  # Render's URL style; SQLAlchemy needs postgresql://
         db_url = db_url.replace("postgres://", "postgresql://", 1)
+    if db_url.startswith("postgresql://"):  # force the psycopg2 driver (SQLAlchemy 2.1 defaults to psycopg3)
+        db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
     app.config.update(
         SECRET_KEY=os.environ.get("SECRET_KEY", "dev-only-change-me"),
