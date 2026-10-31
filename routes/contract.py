@@ -50,7 +50,7 @@ def trade():
     if amount < MIN_STAKE:
         return jsonify(error=f"Minimum stake is {MIN_STAKE:.0f} USDT."), 400
     if amount > current_user.demo_balance:
-        return jsonify(error="Not enough demo balance."), 400
+        return jsonify(error="Not enough cash balance. Convert some holdings to USDT on the Assets page."), 400
 
     price = get_price(symbol)
     if price is None:

@@ -3,7 +3,7 @@
 <section class="banner">
   <div>
     <h1>Invest BTC and ETH with real money</h1>
-    <p>Live prices from CoinGecko. Every balance here is simulated, so you can invest with zero risk.</p>
+    <p>Live prices from CoinGecko. Every balance here is simulated, so you can test ideas with zero risk.</p>
     {% if current_user.is_authenticated %}
       <a class="btn" href="{{ url_for('contract.contract') }}">Open contract page</a>
     {% else %}
@@ -16,9 +16,13 @@
 </section>
 
 {% if current_user.is_authenticated %}
+{% set pf = portfolio(current_user) %}
 <section class="card balance-card">
-  <span class="muted">Investment balance</span>
-  <strong class="big num">{{ current_user.demo_balance|money }} <small>USDT</small></strong>
+  <span class="muted">Total balance</span>
+  <strong class="big num"><span data-pf="total">{{ pf.total|money }}</span> <small>USDT</small></strong>
+  {% if pf.has_holdings and pf.price_ok %}
+  <span class="chg {{ 'up' if pf.change >= 0 else 'down' }}" data-pf="change">{{ '%+.2f'|format(pf.change) }} USDT ({{ '%+.2f'|format(pf.change_pct) }}%) since added</span>
+  {% endif %}
   <div class="action-row">
     <a class="btn btn-small" href="{{ url_for('market.deposit') }}">Add deposited funds</a>
     <a class="btn btn-small btn-ghost" href="{{ url_for('market.support') }}">Deposit &amp; support</a>
@@ -37,3 +41,4 @@
   {% if not market %}<p class="muted small">Live prices could not be loaded. Check your connection and refresh.</p>{% endif %}
 </section>
 {% endblock %}
+{% block scripts %}{% if current_user.is_authenticated %}<script src="{{ url_for('static', filename='js/portfolio.js') }}"></script>{% endif %}{% endblock %}

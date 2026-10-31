@@ -60,7 +60,7 @@
     btn.addEventListener("click", async () => {
       const amount = parseFloat(amountInput.value);
       if (!(amount >= minStake)) return say("Minimum stake is " + minStake + " USDT.", false);
-      if (amount > balance) return say("Not enough demo balance.", false);
+      if (amount > balance) return say("Not enough cash balance. Convert holdings to USDT on the Assets page.", false);
 
       document.querySelectorAll(".btn-buy").forEach((b) => (b.disabled = true));
       try {

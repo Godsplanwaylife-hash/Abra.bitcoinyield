@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Add demo funds · testingcoin{% endblock %}
+{% block title %}Add investment funds · abra.bitcoinyield{% endblock %}
 {% block content %}
+{% set pf = portfolio(current_user) %}
 <section class="card">
-  <h1>Add investment funds</h1>
-  <p class="muted">Type how much <strong></strong> USDT you want to add. This will be deducted from your investment deposite with oyr support.</p>
-  <p>Current investment balance: <strong class="num">{{ current_user.demo_balance|money }} USDT</strong></p>
+  <h1>Add deposited funds</h1>
+  <p class="muted">Type how much <strong></strong> USDT to add. This will be deducted from your investment deposited funds by our support.</p>
+  <p>Total balance: <strong class="num">{{ pf.total|money }} USDT</strong></p>
   <form method="post" novalidate>
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label class="field-label" for="amount">Amount (USDT)</label>
@@ -15,9 +16,22 @@
         <button type="button" class="seg-btn" onclick="document.getElementById('amount').value={{ amt }}">{{ '{:,}'.format(amt) }}</button>
       {% endfor %}
     </div>
-    <button class="btn btn-block" type="submit">Add to investment balance</button>
+
+    <label class="field-label">Put the funds in</label>
+    <div class="alloc">
+      <label><input type="radio" name="allocation" value="SPLIT" checked>
+        <span>50% BTC + 50% ETH <small>Value moves with the live prices</small></span></label>
+      <label><input type="radio" name="allocation" value="BTC">
+        <span>Bitcoin (BTC) <small>Value moves with the BTC price</small></span></label>
+      <label><input type="radio" name="allocation" value="ETH">
+        <span>Ethereum (ETH) <small>Value moves with the ETH price</small></span></label>
+      <label><input type="radio" name="allocation" value="USDT">
+        <span>Cash (USDT) <small>Stays fixed. Needed to place contracts</small></span></label>
+    </div>
+
+    <button class="btn btn-block" type="submit">Add funds</button>
   </form>
-  <p class="muted small">Per top-up: {{ '{:,}'.format(min_amount) }} to {{ '{:,}'.format(max_amount) }} USDT. Investment balance is capped at {{ '{:,}'.format(max_balance) }} USDT.</p>
+  <p class="muted small">Coin values can fall as well as rise. Per top-up: {{ '{:,}'.format(min_amount) }} to {{ '{:,}'.format(max_amount) }} USDT. Total balance is capped at {{ '{:,}'.format(max_balance) }} USDT.</p>
 </section>
 <p class="muted small center">Questions? <a href="{{ url_for('market.support') }}">Contact support</a></p>
 {% endblock %}

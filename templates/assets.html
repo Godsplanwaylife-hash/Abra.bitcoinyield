@@ -1,11 +1,57 @@
 {% extends "base.html" %}
-{% block title %}Assets · testingcoin{% endblock %}
+{% block title %}Assets · abra.bitcoinyield{% endblock %}
 {% block content %}
+{% set pf = portfolio(current_user) %}
 <section class="card balance-card">
-  <span class="muted">Investment Balance</span>
-  <strong class="big num">{{ current_user.demo_balance|money }} <small>USDT</small></strong>
-  <span class="chg {{ 'up' if stats.net >= 0 else 'down' }}">Net P&amp;L {{ '%+.2f'|format(stats.net) }} USDT</span>
+  <span class="muted">Total balance</span>
+  <strong class="big num"><span data-pf="total">{{ pf.total|money }}</span> <small>USDT</small></strong>
+  {% if pf.has_holdings and pf.price_ok %}
+  <span class="chg {{ 'up' if pf.change >= 0 else 'down' }}" data-pf="change">{{ '%+.2f'|format(pf.change) }} USDT ({{ '%+.2f'|format(pf.change_pct) }}%) since added</span>
+  {% elif pf.has_holdings %}
+  <span class="muted small">Live prices unavailable right now.</span>
+  {% endif %}
   <div class="action-row"><a class="btn btn-small" href="{{ url_for('market.deposit') }}">Add deposited funds</a></div>
+</section>
+
+<section class="card list">
+  <div class="trade-row">
+    <div><strong>USDT cash</strong><small class="muted">Used for contracts</small></div>
+    <div class="right"><strong class="num" data-pf="cash">{{ pf.cash|money }}</strong></div>
+  </div>
+  <div class="trade-row">
+    <div><strong>BTC</strong><small class="muted num"><span data-pf="btc_units">{{ '%.6f'|format(pf.btc_units) }}</span> BTC</small></div>
+    <div class="right"><strong class="num" data-pf="btc_value">{{ pf.btc_value|money }}</strong></div>
+  </div>
+  <div class="trade-row">
+    <div><strong>ETH</strong><small class="muted num"><span data-pf="eth_units">{{ '%.6f'|format(pf.eth_units) }}</span> ETH</small></div>
+    <div class="right"><strong class="num" data-pf="eth_value">{{ pf.eth_value|money }}</strong></div>
+  </div>
+</section>
+<p class="muted small">Coin values follow live BTC and ETH prices and can fall as well as rise.</p>
+
+<section class="card">
+  <h2>Convert</h2>
+  <p class="muted small">Move value between cash and coins at the current price.</p>
+  <form method="post" action="{{ url_for('market.convert') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="convert-grid">
+      <div>
+        <label class="field-label" for="from">From</label>
+        <select id="from" name="from">
+          <option value="USDT" selected>USDT cash</option><option value="BTC">BTC</option><option value="ETH">ETH</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label" for="to">To</label>
+        <select id="to" name="to">
+          <option value="BTC" selected>BTC</option><option value="ETH">ETH</option><option value="USDT">USDT cash</option>
+        </select>
+      </div>
+    </div>
+    <label class="field-label" for="conv-amount">Amount (USDT value)</label>
+    <input id="conv-amount" name="amount" type="number" inputmode="decimal" min="1" step="0.01" required placeholder="e.g. 100">
+    <button class="btn btn-block" type="submit">Convert</button>
+  </form>
 </section>
 
 <section class="stat-grid">
@@ -40,3 +86,4 @@
 <p class="muted">No trades yet. Open the <a href="{{ url_for('contract.contract') }}">Contract</a> page to place your first simulated trade.</p>
 {% endif %}
 {% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/portfolio.js') }}"></script>{% endblock %}

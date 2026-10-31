@@ -157,3 +157,11 @@ textarea:focus { border-color: var(--accent); outline: none; }
 .faq:first-of-type { border-top: 0; }
 .faq summary { cursor: pointer; font-weight: 700; }
 .faq p { margin: 8px 0 0; color: var(--muted); }
+
+/* Portfolio */
+.convert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.alloc { display: grid; gap: 8px; margin-top: 6px; }
+.alloc label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); cursor: pointer; }
+.alloc input { margin-top: 4px; }
+.alloc small { display: block; color: var(--muted); }
+.alloc label:has(input:checked) { border-color: var(--accent); }

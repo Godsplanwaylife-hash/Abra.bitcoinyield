@@ -2,20 +2,28 @@ import math
 import os
 import time
 
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import func
 
 from emailer import APP_NAME, send_templated
 from forms import SupportForm, WalletForm
 from models import STARTING_BALANCE, Trade, db
-from services import get_market_data, settle_due_trades
+from portfolio import ASSETS, convert_assets, snapshot
+from services import get_market_data, get_price, settle_due_trades
 
 bp = Blueprint("market", __name__)
 
 MIN_TOPUP = 10           # virtual USDT only
 MAX_TOPUP = 10_000
 MAX_DEMO_BALANCE = 100_000
+ALLOCATIONS = ("SPLIT", "BTC", "ETH", "USDT")
+
+
+@bp.app_context_processor
+def inject_portfolio():
+    """Lets templates call portfolio(current_user) for live balance figures."""
+    return {"portfolio": snapshot}
 
 
 @bp.route("/")
@@ -47,23 +55,61 @@ def assets():
 @bp.route("/deposit", methods=["GET", "POST"])
 @login_required
 def deposit():
-    """Adds VIRTUAL demo USDT. No real crypto is involved."""
+    """Adds VIRTUAL funds. Coin allocations then follow the live BTC/ETH price."""
     if request.method == "POST":
         try:
             amount = round(float(request.form.get("amount", "")), 2)
         except ValueError:
             amount = float("nan")
-        if not math.isfinite(amount) or not (MIN_TOPUP <= amount <= MAX_TOPUP):
+        alloc = request.form.get("allocation", "SPLIT")
+        prices = {s: get_price(s) for s in ("BTC", "ETH")}
+        needs = {"SPLIT": ("BTC", "ETH"), "BTC": ("BTC",), "ETH": ("ETH",), "USDT": ()}.get(alloc)
+
+        if needs is None:
+            flash("Choose where to put the funds.", "error")
+        elif not math.isfinite(amount) or not (MIN_TOPUP <= amount <= MAX_TOPUP):
             flash(f"Enter an amount between {MIN_TOPUP:,} and {MAX_TOPUP:,} USDT.", "error")
-        elif current_user.demo_balance + amount > MAX_DEMO_BALANCE:
-            flash(f"Demo balance can't go above {MAX_DEMO_BALANCE:,} USDT.", "error")
+        elif snapshot(current_user)["total"] + amount > MAX_DEMO_BALANCE:
+            flash(f"Total balance can't go above {MAX_DEMO_BALANCE:,} USDT.", "error")
+        elif any(prices[sym] is None for sym in needs):
+            flash("Live prices are unavailable right now. Try again shortly.", "error")
         else:
-            current_user.demo_balance += amount
+            if alloc == "USDT":
+                current_user.demo_balance += amount
+            else:
+                share = amount / len(needs)
+                for sym in needs:
+                    attr = "btc_units" if sym == "BTC" else "eth_units"
+                    setattr(current_user, attr, (getattr(current_user, attr) or 0.0) + share / prices[sym])
+                current_user.cost_basis = (current_user.cost_basis or 0.0) + amount
             db.session.commit()
-            flash(f"Added {amount:,.2f} virtual USDT to your demo balance.", "success")
+            flash(f"Added {amount:,.2f} virtual USDT.", "success")
             return redirect(url_for("market.assets"))
     return render_template("deposit.html", min_amount=MIN_TOPUP, max_amount=MAX_TOPUP,
-                       max_balance=MAX_DEMO_BALANCE)
+                           max_balance=MAX_DEMO_BALANCE)
+
+
+@bp.route("/assets/convert", methods=["POST"])
+@login_required
+def convert():
+    try:
+        usd = round(float(request.form.get("amount", "")), 2)
+    except ValueError:
+        usd = float("nan")
+    err = convert_assets(current_user, request.form.get("from"), request.form.get("to"), usd)
+    if err:
+        flash(err, "error")
+    else:
+        db.session.commit()
+        flash("Converted.", "success")
+    return redirect(url_for("market.assets"))
+
+
+@bp.route("/api/portfolio")
+@login_required
+def api_portfolio():
+    return jsonify(snapshot(current_user))
+
 
 @bp.route("/support", methods=["GET", "POST"])
 @login_required
@@ -115,6 +161,9 @@ def profile():
 def reset_demo():
     Trade.query.filter_by(user_id=current_user.id).delete()
     current_user.demo_balance = STARTING_BALANCE
+    current_user.btc_units = 0.0
+    current_user.eth_units = 0.0
+    current_user.cost_basis = 0.0
     db.session.commit()
     flash("Demo balance reset to 0 and trade history cleared.", "success")
     return redirect(url_for("market.profile"))

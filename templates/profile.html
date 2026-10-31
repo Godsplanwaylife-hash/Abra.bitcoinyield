@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Me · testingcoin{% endblock %}
+{% block title %}Me · abra.bitcoinyield{% endblock %}
 {% block content %}
 <section class="card">
   <h1>{{ current_user.username }}</h1>
   <p class="muted">{{ current_user.email }} · joined {{ current_user.created_at.strftime('%b %d, %Y') }}</p>
-  <p>Investment balance: <strong class="num">{{ current_user.demo_balance|money }} USDT</strong></p>
+  <p>Total balance: <strong class="num">{{ portfolio(current_user).total|money }} USDT</strong></p>
 </section>
 
 <section class="card">
-  <h2>Your wallet address (reference only)</h2>
-  <p class="muted small">Save your own BTC or ERC-20 address. This app never sends to it, receives from it, or connects to it without your permission.</p>
+  <h2>Your wallet address</h2>
+  <p class="muted small">Save your own BTC or ERC-20 address. This app never send to it, recives from it or connect to it without your permission.</p>
   <form method="post" novalidate>
     {{ form.hidden_tag() }}
     <label class="field-label" for="{{ form.network.id }}">{{ form.network.label.text }}</label>
@@ -22,8 +22,8 @@
 </section>
 
 <section class="card">
-  <h2>Reset Account</h2>
-  <p class="muted small">Set your account balance back to 0 and clears your trade history.</p>
+  <h2>Reset Investment</h2>
+  <p class="muted small">Sets your investment balance back to 0 and clears your trade history.</p>
   <form method="post" action="{{ url_for('market.reset_demo') }}" onsubmit="return confirm('Reset your balance and history?');">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-ghost" type="submit">Reset investment balance</button>

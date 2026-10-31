@@ -4,6 +4,7 @@ from flask import Flask, render_template
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from models import User, db
 from services import COINS, spark_points
@@ -18,14 +19,23 @@ migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
+    # Render sits behind a proxy: this makes url_for(..., _external=True) use the real
+    # https address (needed for the links inside password-reset emails).
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
     os.makedirs(app.instance_path, exist_ok=True)
+    db_url = os.environ.get(
+        "DATABASE_URL", "sqlite:///" + os.path.join(app.instance_path, "dashboard.db"))
+    if db_url.startswith("postgres://"):  # Render's URL style; SQLAlchemy needs postgresql://
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+
     app.config.update(
         SECRET_KEY=os.environ.get("SECRET_KEY", "dev-only-change-me"),
-        SQLALCHEMY_DATABASE_URI=os.environ.get(
-            "DATABASE_URL", "sqlite:///" + os.path.join(app.instance_path, "dashboard.db")),
+        SQLALCHEMY_DATABASE_URI=db_url,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
+        SESSION_COOKIE_SECURE=bool(os.environ.get("RENDER")),  # Render sets RENDER=true
     )
 
     db.init_app(app)
@@ -51,7 +61,7 @@ def create_app():
     def not_found(_):
         return render_template("error.html", code=404, message="Page not found."), 404
 
-    # No db.create_all() here: tables are created by migrations (flask db upgrade).
+    # No db.create_all(): tables are created by migrations (flask db upgrade).
     return app
 
 

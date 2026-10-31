@@ -23,6 +23,10 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
     demo_balance = db.Column(db.Float, nullable=False, default=STARTING_BALANCE)
+    # Virtual holdings. Their value is units x live price, so it moves with the market.
+    btc_units = db.Column(db.Float, nullable=False, default=0.0, server_default="0")
+    eth_units = db.Column(db.Float, nullable=False, default=0.0, server_default="0")
+    cost_basis = db.Column(db.Float, nullable=False, default=0.0, server_default="0")  # USDT put into coins
     # Optional, reference-only. Never used to send or receive anything.
     wallet_network = db.Column(db.String(10), nullable=True)  # "BTC" or "ERC20"
     wallet_address = db.Column(db.String(100), nullable=True)

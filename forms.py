@@ -73,7 +73,7 @@ class WalletForm(FlaskForm):
 class SupportForm(FlaskForm):
     topic = SelectField("Topic", choices=[
         ("How it works", "How the app works"),
-        ("Investment funds", "Investment funds / balance"),
+        ("Invest funds", "Invest funds / check balance"),
         ("Trading", "Simulated trading"),
         ("Account", "My account"),
         ("Other", "Something else")])

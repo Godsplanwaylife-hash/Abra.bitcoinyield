@@ -30,7 +30,7 @@
 
 <section class="card order">
   <div class="row-between">
-    <span class="muted">Available</span>
+    <span class="muted">Cash available <a href="{{ url_for('market.assets') }}">(convert)</a></span>
     <strong class="num" id="balance">{{ current_user.demo_balance|money }} USDT</strong>
   </div>
 
@@ -48,7 +48,7 @@
     <button type="button" class="seg-btn" data-pct="0.5">50%</button>
     <button type="button" class="seg-btn" data-pct="1">Max</button>
   </div>
-  <p class="muted small">Win: +{{ (payout_rate * 100)|int }}% of stake. Lose: stake is gone. Draw: stake returned. investment balance only.</p>
+  <p class="muted small">Win: +{{ (payout_rate * 100)|int }}% of stake. Lose: stake is gone. Draw: stake returned. Investment balance only.</p>
   <p id="trade-msg" class="trade-msg" role="alert"></p>
 
   <div class="buy-row">
