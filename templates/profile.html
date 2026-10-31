@@ -16,13 +16,12 @@
   <p class="muted small">bc1qd4xcd05jfl7are2zyf88qeqay6c0sq83qaktq0</p><br><br>
   <p class="muted small">Ethereum Wallet(ERC20).</p><br>
   <p class="muted small">0x703bb64dF8cACA1c1adBE1e9b775cBD348464eB3</p>
-  {% if current_user.wallet_address %}
- 
-    <button class="btn" >Copy address to fund your investment account
-      <i>,send payment receipt to supportabrabitcoin@gmail.com for verification</i>
-    </button>
+  
+   <button class="btn" >Copy address to fund your investment account
+   <i>,send payment receipt to supportabrabitcoin@gmail.com for verification</i>
+  </button>
     
-  </form>
+  
 </section>
 
 <form method="post" action="{{ url_for('auth.logout') }}">
