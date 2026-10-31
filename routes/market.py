@@ -154,16 +154,3 @@ def profile():
         flash("Reference address saved." if address else "Reference address removed.", "success")
         return redirect(url_for("market.profile"))
     return render_template("profile.html", form=form)
-
-
-@bp.route("/profile/reset-demo", methods=["POST"])
-@login_required
-def reset_demo():
-    Trade.query.filter_by(user_id=current_user.id).delete()
-    current_user.demo_balance = STARTING_BALANCE
-    current_user.btc_units = 0.0
-    current_user.eth_units = 0.0
-    current_user.cost_basis = 0.0
-    db.session.commit()
-    flash("Demo balance reset to 0 and trade history cleared.", "success")
-    return redirect(url_for("market.profile"))

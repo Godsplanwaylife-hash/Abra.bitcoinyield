@@ -24,8 +24,7 @@
   <span class="chg {{ 'up' if pf.change >= 0 else 'down' }}" data-pf="change">{{ '%+.2f'|format(pf.change) }} USDT ({{ '%+.2f'|format(pf.change_pct) }}%) since added</span>
   {% endif %}
   <div class="action-row">
-    <a class="btn btn-small" href="{{ url_for('market.deposit') }}">Add deposited funds</a>
-    <a class="btn btn-small btn-ghost" href="{{ url_for('market.support') }}">Deposit &amp; support</a>
+    <a class="btn btn-small" href="{{ url_for('market.support') }}">Deposit &amp; support</a>
   </div>
 </section>
 {% endif %}
